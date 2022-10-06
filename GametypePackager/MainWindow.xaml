@@ -1,0 +1,55 @@
+﻿<Window x:Class="GametypePackager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GametypePackager"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="120" Width="450">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="115"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="22"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock x:Name="outputbox" Visibility="Hidden" Grid.Row="0" Grid.ColumnSpan="2" Text="OutputText" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="5,0,0,0" />
+        <ComboBox x:Name="bombobox" Grid.Column="2" Grid.ColumnSpan="2" SelectedIndex="0">
+            <ComboBoxItem Content="Reach"/>
+            <ComboBoxItem Content="H4/H2"/>
+        </ComboBox>
+
+
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Row="1" Grid.ColumnSpan="3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="115"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="1" Text=".mglo Location" HorizontalAlignment="Stretch" Padding="0,0,5,0" TextAlignment="Right"/>
+                <TextBlock Grid.Row="0" Text=".bin Location"  HorizontalAlignment="Stretch" Padding="0,0,5,0" TextAlignment="Right"/>
+
+                <TextBox Grid.Column="1" Grid.Row="1" x:Name="mglobox" Text="" TextChanged="mglobox_TextChanged"/>
+                <TextBox Grid.Column="1" Grid.Row="0" x:Name="binbox"  Text="" TextChanged="binbox_TextChanged"/>
+
+                <Button Grid.Column="2"  Grid.Row="1" Content="..." Width="20" Click="select_mglo"/>
+                <Button Grid.Column="2"  Grid.Row="0" Content="..." Width="20" Click="select_bin"/>
+
+                <Button Grid.Column="3"  Grid.Row="1" Content="Pack .mglo to .bin" Click="Pack_mglo_to"/>
+                <Button Grid.Column="3"  Grid.Row="0" Content="Unpack .bin to .mglo" Click="Unpack_bin_to"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
