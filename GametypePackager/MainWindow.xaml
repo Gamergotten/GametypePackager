@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GametypePackager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="120" Width="450">
+        Title="MainWindow" Height="140" Width="450">
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -30,6 +30,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90"/>
@@ -38,15 +39,19 @@
                     <ColumnDefinition Width="115"/>
                 </Grid.ColumnDefinitions>
 
+                <TextBlock Grid.Row="2" Text=".mglo Folder" HorizontalAlignment="Stretch" Padding="0,0,5,0" TextAlignment="Right"/>
                 <TextBlock Grid.Row="1" Text=".mglo Location" HorizontalAlignment="Stretch" Padding="0,0,5,0" TextAlignment="Right"/>
                 <TextBlock Grid.Row="0" Text=".bin Location"  HorizontalAlignment="Stretch" Padding="0,0,5,0" TextAlignment="Right"/>
 
+                <TextBox Grid.Column="1" Grid.Row="2" x:Name="mglofolderbox" Text="" TextChanged="mglofolderbox_TextChanged"/>
                 <TextBox Grid.Column="1" Grid.Row="1" x:Name="mglobox" Text="" TextChanged="mglobox_TextChanged"/>
                 <TextBox Grid.Column="1" Grid.Row="0" x:Name="binbox"  Text="" TextChanged="binbox_TextChanged"/>
 
+                <Button Grid.Column="2"  Grid.Row="2" Content="..." Width="20" Click="select_mglofolder"/>
                 <Button Grid.Column="2"  Grid.Row="1" Content="..." Width="20" Click="select_mglo"/>
                 <Button Grid.Column="2"  Grid.Row="0" Content="..." Width="20" Click="select_bin"/>
 
+                <Button Grid.Column="3"  Grid.Row="2" Content="Pack .mglos to .bins" Click="Pack_mglos_to"/>
                 <Button Grid.Column="3"  Grid.Row="1" Content="Pack .mglo to .bin" Click="Pack_mglo_to"/>
                 <Button Grid.Column="3"  Grid.Row="0" Content="Unpack .bin to .mglo" Click="Unpack_bin_to"/>
             </Grid>

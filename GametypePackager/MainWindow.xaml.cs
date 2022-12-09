@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.Windows.Forms;
 
 namespace GametypePackager
 {
@@ -35,10 +36,15 @@ namespace GametypePackager
             if (File.Exists(data_file))
             {
                 string[] frogos = File.ReadAllLines(data_file);
-                if (frogos.Length == 2)
+                if (frogos.Length >= 1)
                 {
                     binbox.Text = frogos[0];
-                    mglobox.Text = frogos[1];
+                    if (frogos.Length >= 2)
+                    {
+                        mglobox.Text = frogos[1];
+                        if (frogos.Length >= 3)
+                            mglofolderbox.Text = frogos[2];
+                    }
                 }
             }
             is_intializing = false; // so we dont have unneeded write calls to the text file
@@ -54,7 +60,7 @@ namespace GametypePackager
                 Directory.CreateDirectory(specificFolder);
 
             string data_file = System.IO.Path.Combine(specificFolder, "prefs.txt");
-            File.WriteAllLines(data_file, new string[2] { binbox.Text, mglobox.Text } );
+            File.WriteAllLines(data_file, new string[3] { binbox.Text, mglobox.Text, mglofolderbox.Text } );
         }
         
         static int reach_length = 20480;
@@ -101,7 +107,7 @@ namespace GametypePackager
                             try
                             {
                                 if (skipped_something)
-                                    MessageBox.Show("whoops, we completely ignored the data in the last byte of the .mglo, we probably didnt need that anyway");
+                                    System.Windows.MessageBox.Show("whoops, we completely ignored the data in the last byte of the .mglo, we probably didnt need that anyway");
                                 if (File.Exists(mglobox.Text))
                                     File.WriteAllBytes(mglobox.Text, sus);
                                 else // create a new file to deposit the bytes
@@ -115,28 +121,52 @@ namespace GametypePackager
                             }
                         }
                         else
-                            MessageBox.Show(mglobox.Text + " is not a valid outpath");
+                            System.Windows.MessageBox.Show(mglobox.Text + " is not a valid outpath");
                     }
                     else
-                        MessageBox.Show(binbytes.Length + " is too few bytes, its probably not actually a bin file");
+                        System.Windows.MessageBox.Show(binbytes.Length + " is too few bytes, its probably not actually a bin file");
                 }
                 else
-                    MessageBox.Show(binbox.Text + " is an empty/invalid file");
+                    System.Windows.MessageBox.Show(binbox.Text + " is an empty/invalid file");
             }
             else
-                MessageBox.Show(binbox.Text + " is an invalid path");
+                System.Windows.MessageBox.Show(binbox.Text + " is an invalid path");
         }
 
 
+        private void Pack_mglos_to(object sender, RoutedEventArgs e)
+        {
+            int mglo_length = reach_length;
+            if (bombobox.SelectedIndex == 1) // then its H4/2A
+                mglo_length = H4_2A_length;
+
+            if (Directory.Exists(mglofolderbox.Text))
+            {
+                foreach (var file in Directory.GetFiles(mglofolderbox.Text))
+                {
+                    var ext = System.IO.Path.GetExtension(file);
+                    if (ext == ".mglo") // then this is probably the right file to convert
+                    {
+                        sausage(mglo_length, file, file+".bin");
+                    }// else this is not a file
+                }
+            }
+            else
+                System.Windows.MessageBox.Show(mglofolderbox.Text + " is an invalid folder");
+        }
         private void Pack_mglo_to(object sender, RoutedEventArgs e)
         {
             int mglo_length = reach_length;
             if (bombobox.SelectedIndex == 1) // then its H4/2A
                 mglo_length = H4_2A_length;
 
-            if (File.Exists(mglobox.Text))
+            sausage(mglo_length, mglobox.Text, binbox.Text);
+        }
+        private void sausage(int mglo_length, string directory, string outputdir)
+        {
+            if (File.Exists(directory))
             {
-                byte[] mglobytes = File.ReadAllBytes(mglobox.Text);
+                byte[] mglobytes = File.ReadAllBytes(directory);
                 if (mglobytes != null)
                 {
                     if (mglobytes.Length < mglo_length) // make sure the file is long enough
@@ -162,20 +192,22 @@ namespace GametypePackager
                         for (int i = 0; i < ender.Length; i++)
                             sus[i + insertion_index] = ender[i];
 
-                        if (string.IsNullOrEmpty(binbox.Text)) // then write their directory based off the megalobox
-                            binbox.Text = System.IO.Path.GetDirectoryName(mglobox.Text) + "\\" + System.IO.Path.GetFileNameWithoutExtension(mglobox.Text) + ".bin";
-                        if (Directory.Exists(System.IO.Path.GetDirectoryName(binbox.Text)))
+                        if (string.IsNullOrEmpty(outputdir)) // then write their directory based off the megalobox
+                            outputdir = System.IO.Path.GetDirectoryName(directory) + "\\" + System.IO.Path.GetFileNameWithoutExtension(directory) + ".bin";
+                        if (Directory.Exists(System.IO.Path.GetDirectoryName(outputdir)))
                         {
                             try
                             {
 
                                 if (skipped_something)
-                                    MessageBox.Show("whoops, we completely ignored the data in the first byte of the .mglo, we probably didnt need that anyway");
-                                if (File.Exists(binbox.Text))
-                                    if (MessageBox.Show("NOTE:\r\nYou are about to overwrite '" + System.IO.Path.GetFileName(binbox.Text) + "'.\r\nContinue?", "Overwrite .bin?", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                                        File.WriteAllBytes(binbox.Text, sus);
+                                    System.Windows.MessageBox.Show("whoops, we completely ignored the data in the first byte of the .mglo, we probably didnt need that anyway");
+                                if (File.Exists(outputdir))
+                                {
+                                    if (System.Windows.MessageBox.Show("NOTE:\r\nYou are about to overwrite '" + System.IO.Path.GetFileName(outputdir) + "'.\r\nContinue?", "Overwrite .bin?", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                                        File.WriteAllBytes(outputdir, sus);
+                                }
                                 else // create a new file to deposit the bytes
-                                    File.WriteAllBytes(binbox.Text, sus);
+                                    File.WriteAllBytes(outputdir, sus);
                                 outputbox.Text = "Successfully converted the .mglo to the .bin";
                                 hide_message_in_1_seocnds();
                             }
@@ -185,19 +217,19 @@ namespace GametypePackager
                             }
                         }
                         else
-                            MessageBox.Show(binbox.Text + " is not a valid outpath");
+                            System.Windows.MessageBox.Show(outputdir + " is not a valid outpath");
                     }
                     else
                     {
-                        MessageBox.Show(mglobytes.Length + " is too many bytes, its probably not actually a mglo file");
+                        System.Windows.MessageBox.Show(mglobytes.Length + " is too many bytes, its probably not actually a mglo file");
                     }
-                    
+
                 }
                 else
-                    MessageBox.Show(mglobox.Text +" is an empty/invalid file");
+                    System.Windows.MessageBox.Show(mglobox.Text + " is an empty/invalid file");
             }
             else
-                MessageBox.Show(mglobox.Text+" is an invalid path");
+                System.Windows.MessageBox.Show(mglobox.Text + " is an invalid path");
         }
 
         void BA_rightshift(ref byte[] array, int earlystop)
@@ -238,7 +270,20 @@ namespace GametypePackager
                 return theoretical_file_dialog.FileName;
             return "";
         }
+        string Select_folder_dialog()
+        {
+            FolderBrowserDialog folderDlg = new FolderBrowserDialog();
+            // Show the FolderBrowserDialog.  
+            DialogResult result = folderDlg.ShowDialog();
+            if (result.ToString() != string.Empty)
+                return folderDlg.SelectedPath;
+            return "";
+        }
 
+        private void select_mglofolder(object sender, RoutedEventArgs e)
+        {
+            mglofolderbox.Text = Select_folder_dialog();
+        }
         private void select_mglo(object sender, RoutedEventArgs e)
         {
             mglobox.Text = Save_file_dialog(".mglo", "Megalo file|*.mglo", "Select the .mglo input/output");
@@ -248,6 +293,10 @@ namespace GametypePackager
             binbox.Text = Save_file_dialog(".bin", "Binary file|*.bin", "Select the .bin input/output");
         }
 
+        private void mglofolderbox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            update_saved_files();
+        }
         private void mglobox_TextChanged(object sender, TextChangedEventArgs e)
         {
             update_saved_files();
